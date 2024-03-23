@@ -10,6 +10,9 @@ import SwiftData
 
 @main
 struct CurrencyConvyApp: App {
+    @StateObject var conversionHistory = ConversionHistoryManager()
+    @StateObject var currencyRates = CurrencyRatesManager()
+    
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,
@@ -26,6 +29,8 @@ struct CurrencyConvyApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environmentObject(conversionHistory)
+                .environmentObject(currencyRates)
         }
         .modelContainer(sharedModelContainer)
     }
