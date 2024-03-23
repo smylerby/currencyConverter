@@ -1,10 +1,3 @@
-//
-//  ContentView.swift
-//  CurrencyConvy
-//
-//  Created by Rustam Shorov on 23.03.24.
-//
-
 import SwiftUI
 
 struct ContentView: View {
@@ -15,6 +8,7 @@ struct ContentView: View {
     @State private var conversionRate = ""
     @State private var isFetchingRates = false
     @State private var timeRemaining = Constants.resreshRatesTimer
+    @State private var isKeyboardVisible = false
     
     let currencies = ["RUB", "USD", "EUR", "GBP", "CHF", "CNY"]
     
@@ -23,75 +17,83 @@ struct ContentView: View {
     
     var body: some View {
         NavigationView {
-            VStack {
-                Picker("Source Currency", selection: $sourceCurrencyIndex) {
-                    ForEach(0..<currencies.count) { index in
-                        Text(self.currencies[index])
+            ScrollView {
+                VStack {
+                    Picker(selection: $sourceCurrencyIndex, label: Text("Source Currency")) {
+                        ForEach(0 ..< currencies.count) {
+                            Text(self.currencies[$0])
+                        }
                     }
-                }
-                .pickerStyle(SegmentedPickerStyle())
-                .padding()
-                
-                Picker("Target Currency", selection: $targetCurrencyIndex) {
-                    ForEach(0..<currencies.count) { index in
-                        Text(self.currencies[index])
+                    .pickerStyle(SegmentedPickerStyle())
+                    .padding()
+                    
+                    Picker(selection: $targetCurrencyIndex, label: Text("Target Currency")) {
+                        ForEach(0 ..< currencies.count) {
+                            Text(self.currencies[$0])
+                        }
                     }
-                }
-                .pickerStyle(SegmentedPickerStyle())
-                .padding()
-                
-                TextField("Enter amount", text: $amount)
-                    .keyboardType(.numberPad)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .pickerStyle(SegmentedPickerStyle())
                     .padding()
-                
-                Text("Conversion Result: \(conversionResult)")
+                    
+                    TextField("Enter amount", text: $amount, onCommit: {
+                        UIApplication.shared.endEditing()
+                    })
+                    .keyboardType(.decimalPad)
                     .padding()
-                
-                Text("Conversion Rate: \(conversionRate)")
+                    
+                    Text("Conversion Result: \(conversionResult)")
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    Text("Conversion Rate: \(conversionRate)")
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    Button(action: {
+                        convert()
+                        UIApplication.shared.endEditing() // Скрыть клавиатуру
+                    }) {
+                        if isFetchingRates {
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle())
+                                .foregroundColor(.white)
+                        } else {
+                            Text("Convert")
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                        }
+                    }
                     .padding()
-                
-                Button(action: {
-                    convert()
-                }) {
-                    if isFetchingRates {
-                        ProgressView()
-                            .progressViewStyle(CircularProgressViewStyle())
-                            .foregroundColor(.white)
-                    } else {
-                        Text("Convert")
+                    .disabled(amount.isEmpty || isFetchingRates)
+                    
+                    NavigationLink(destination: ConversionHistoryView()) {
+                        Text("Conversion History")
                             .padding()
-                            .background(amount.isEmpty || isFetchingRates ? Color.gray : Color.blue)
+                            .background(Color.blue)
                             .foregroundColor(.white)
                             .cornerRadius(10)
                     }
-                }
-                .padding()
-                .disabled(amount.isEmpty || isFetchingRates)
-                
-                NavigationLink(destination: ConversionHistoryView()) {
-                    Text("Conversion History")
-                        .padding()
-                        .background(Color.gray)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                }
-                .padding()
-                
-                Spacer()
-                
-                Text("Next update in: \(timeRemaining) seconds")
-                    .foregroundColor(.gray)
-                    .font(.footnote)
-                    .padding(.bottom)
-                    .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
-                        if timeRemaining > 0 {
-                            timeRemaining -= 1
-                        } else {
-                            timeRemaining = Constants.resreshRatesTimer
-                            currencyRates.fetchAllCurrencyRates()
+                    .padding()
+                    
+                    
+                    Spacer()
+                    
+                    Text("Next update in: \(timeRemaining) seconds")
+                        .foregroundColor(.gray)
+                        .font(.footnote)
+                        .padding(.bottom)
+                        .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
+                            if timeRemaining > 0 {
+                                timeRemaining -= 1
+                            } else {
+                                timeRemaining = 120
+                                currencyRates.fetchAllCurrencyRates()
+                            }
                         }
-                    }
+                }
+                .padding(.bottom, 20) // Добавляем дополнительный отступ снизу для прокрутки
             }
             .navigationTitle("Currency Converter")
             .onAppear {
@@ -121,5 +123,11 @@ struct ContentView: View {
                               targetCurrency: targetCurrency,
                               amount: amountToConvert,
                               result: convertedAmount)
+    }
+}
+
+extension UIApplication {
+    func endEditing() {
+        sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
