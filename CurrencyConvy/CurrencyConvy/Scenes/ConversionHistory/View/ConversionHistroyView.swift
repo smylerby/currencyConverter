@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ConversionHistoryView: View {
-    @EnvironmentObject var conversionHistory: ConversionHistoryManager
+    @EnvironmentObject var conversionHistory: ConversionHistoryRepository
     
     @State private var searchText = ""
     
@@ -32,7 +32,7 @@ struct ConversionHistoryView: View {
         }
     }
     
-    var filteredConversions: [Conversion] {
+    var filteredConversions: [ConversionHistoryItem] {
         if searchText.isEmpty {
             return conversionHistory.conversions
         } else {

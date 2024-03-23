@@ -13,46 +13,66 @@ class CurrencyRatesManager: ObservableObject {
         static let currencyRatesKey = "currencyRates"
     }
     
-    @Published var rates: [String: Double] = [:]
-    
-    init() {
-        loadCurrencyRates()
-    }
-    
-    func fetchAllCurrencyRates() {
-        guard let url = URL(string: Constants.apiPath+Constants.apiKey) else {
-            print("Invalid URL")
-            return
-        }
-        
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            if let data = data {
-                do {
-                    let decodedResponse = try JSONDecoder().decode(CurrencyRatesResponse.self, 
-                                                                   from: data)
-                    DispatchQueue.main.async {
-                        self.rates = decodedResponse.data
-                        self.saveCurrencyRates()
-                    }
-                    return
-                } catch {
-                    print("Error decoding JSON: \(error)")
-                }
+    @Published private (set) var ratesData: Loadable<CurrencyRates> = .notRequested {
+        didSet {
+            switch ratesData {
+                case .loaded(let rates):
+                    self.saveToStorage(rates: rates)
+                default: return
             }
-        }.resume()
+        }
     }
     
-    func saveCurrencyRates() {
-        if let encodedData = try? JSONEncoder().encode(rates) {
+    private let networking: Networking
+    
+    required init(_ network: Networking) {
+        self.networking = network
+        
+        let initialData = loadCurrencyRates()
+        ratesData = .loaded(CurrencyRates(data: initialData))
+        
+    }
+    
+    func fetchAllCurrencyRates() async {
+        return await withCheckedContinuation { continuation in
+            DispatchQueue.main.async {
+                let task = self.networking.task().sink(
+                    receiveCompletion: { completion in
+                        switch completion {
+                        case .finished:
+                            break
+                        case let .failure(error):
+                            DispatchQueue.main.async {
+                                self.ratesData.setError(error)
+                                continuation.resume()
+                            }
+                        }
+                    },
+                    receiveValue: { (value: CurrencyRates) in
+                        DispatchQueue.main.async {
+                            self.ratesData.setValue(value)
+                            continuation.resume()
+                        }
+                    })
+                self.ratesData.setIsLoading(task)
+            }
+        }
+    }
+    
+    func saveToStorage(rates: CurrencyRates) {
+        if let encodedData = try? JSONEncoder().encode(rates.data) {
             UserDefaults.standard.set(encodedData, forKey: Keys.currencyRatesKey)
         }
     }
-    
-    func loadCurrencyRates() {
+
+    func loadCurrencyRates() -> [String: Double] {
         if let data = UserDefaults.standard.data(forKey: Keys.currencyRatesKey),
            let savedCurrencyRates = try? JSONDecoder().decode([String: Double].self, from: data) {
-            self.rates = savedCurrencyRates
+//            self.ratesData.setValue(CurrencyRates(data: savedCurrencyRates))
+            return savedCurrencyRates
         }
+        
+        return [:]
     }
 }
 

@@ -10,8 +10,8 @@ import SwiftData
 
 @main
 struct CurrencyConvyApp: App {
-    @StateObject var conversionHistory = ConversionHistoryManager()
-    @StateObject var currencyRates = CurrencyRatesManager()
+    @StateObject var conversionHistory = ConversionHistoryRepository()
+    @StateObject var currencyRates = CurrencyRatesManager(Gateway<CurrencyRates>(.latest))
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([

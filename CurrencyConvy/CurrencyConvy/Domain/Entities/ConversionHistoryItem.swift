@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct Conversion: Codable, Identifiable {
+struct ConversionHistoryItem: Codable, Identifiable {
     let id = UUID()
     let sourceCurrency: String
     let targetCurrency: String

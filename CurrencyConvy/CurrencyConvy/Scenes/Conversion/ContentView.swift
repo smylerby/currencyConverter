@@ -7,12 +7,12 @@ struct ContentView: View {
     @State private var conversionResult = ""
     @State private var conversionRate = ""
     @State private var isFetchingRates = false
-    @State private var timeRemaining = Constants.resreshRatesTimer
-    @State private var isKeyboardVisible = false
+    @State private var timeRemaining = Constants.refreshRatesTimerValue
+    @State private var errorMessage: ErrorAlert?
     
     let currencies = ["RUB", "USD", "EUR", "GBP", "CHF", "CNY"]
     
-    @EnvironmentObject var conversionHistory: ConversionHistoryManager
+    @EnvironmentObject var conversionHistory: ConversionHistoryRepository
     @EnvironmentObject var currencyRates: CurrencyRatesManager
     
     var body: some View {
@@ -88,8 +88,8 @@ struct ContentView: View {
                             if timeRemaining > 0 {
                                 timeRemaining -= 1
                             } else {
-                                timeRemaining = 120
-                                currencyRates.fetchAllCurrencyRates()
+                                timeRemaining = Constants.refreshRatesTimerValue
+                                getRates()
                             }
                         }
                 }
@@ -97,7 +97,10 @@ struct ContentView: View {
             }
             .navigationTitle("Currency Converter")
             .onAppear {
-                currencyRates.fetchAllCurrencyRates()
+                getRates()
+            }
+            .alert(item: $errorMessage) { error in
+                Alert(title: Text("Error"), message: Text(error.message), dismissButton: .default(Text("OK")))
             }
         }
     }
@@ -106,23 +109,35 @@ struct ContentView: View {
         let sourceCurrency = currencies[sourceCurrencyIndex]
         let targetCurrency = currencies[targetCurrencyIndex]
         
-        guard let sourceRate = currencyRates.rates[sourceCurrency],
-              let targetRate = currencyRates.rates[targetCurrency],
-              let amountToConvert = Double(amount) else {
-            print("Failed to get rates or convert amount")
-            return
+        
+        if case let .loaded(value) = currencyRates.ratesData {
+            guard let sourceRate = value.data[sourceCurrency],
+                  let targetRate = value.data[targetCurrency],
+                  let amountToConvert = Double(amount) else {
+                print("Failed to get rates or convert amount")
+                return
+            }
+            
+            let conversionRate = targetRate / sourceRate
+            self.conversionRate = String(format: "%.4f", conversionRate)
+            
+            let convertedAmount = amountToConvert * conversionRate
+            self.conversionResult = String(format: "%.2f", convertedAmount)
+            
+            let itemToSave = ConversionHistoryItem(sourceCurrency: sourceCurrency,
+                                                   targetCurrency: targetCurrency,
+                                                   amount: amountToConvert,
+                                                   result: convertedAmount,
+                                                   date: Date())
+            
+            conversionHistory.add(itemToSave)
         }
-        
-        let conversionRate = targetRate / sourceRate
-        self.conversionRate = String(format: "%.4f", conversionRate)
-        
-        let convertedAmount = amountToConvert * conversionRate
-        self.conversionResult = String(format: "%.2f", convertedAmount)
-        
-        conversionHistory.add(sourceCurrency: sourceCurrency,
-                              targetCurrency: targetCurrency,
-                              amount: amountToConvert,
-                              result: convertedAmount)
+    }
+    
+    private func getRates() {
+        Task {
+            await currencyRates.fetchAllCurrencyRates()
+        }
     }
 }
 
@@ -130,4 +145,9 @@ extension UIApplication {
     func endEditing() {
         sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
+}
+
+struct ErrorAlert: Identifiable {
+    var id = UUID()
+    var message: String
 }
