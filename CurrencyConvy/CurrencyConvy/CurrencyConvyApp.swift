@@ -1,6 +1,6 @@
 //
-//  currency_testApp.swift
-//  currency_test
+//  CurrencyConvyApp.swift
+//  CurrencyConvy
 //
 //  Created by Rustam Shorov on 23.03.24.
 //
@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 @main
-struct currency_testApp: App {
+struct CurrencyConvyApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,

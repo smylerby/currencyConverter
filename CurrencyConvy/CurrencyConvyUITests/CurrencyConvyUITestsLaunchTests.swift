@@ -1,13 +1,13 @@
 //
-//  currency_testUITestsLaunchTests.swift
-//  currency_testUITests
+//  CurrencyConvyUITestsLaunchTests.swift
+//  CurrencyConvyUITests
 //
 //  Created by Rustam Shorov on 23.03.24.
 //
 
 import XCTest
 
-final class currency_testUITestsLaunchTests: XCTestCase {
+final class CurrencyConvyUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true

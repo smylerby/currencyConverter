@@ -1,14 +1,14 @@
 //
-//  currency_testTests.swift
-//  currency_testTests
+//  CurrencyConvyTests.swift
+//  CurrencyConvyTests
 //
 //  Created by Rustam Shorov on 23.03.24.
 //
 
 import XCTest
-@testable import currency_test
+@testable import CurrencyConvy
 
-final class currency_testTests: XCTestCase {
+final class CurrencyConvyTests: XCTestCase {
 
     override func setUpWithError() throws {
         // Put setup code here. This method is called before the invocation of each test method in the class.
