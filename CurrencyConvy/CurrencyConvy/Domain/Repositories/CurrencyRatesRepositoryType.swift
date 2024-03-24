@@ -8,7 +8,7 @@
 import Foundation
 
 protocol CurrencyRatesRepositoryType {
-    func getRates() async
+    func getRates(handler: ((Error?) -> Void)?) async
 }
 
 protocol CurrencyRatesRepositoryHolderType {

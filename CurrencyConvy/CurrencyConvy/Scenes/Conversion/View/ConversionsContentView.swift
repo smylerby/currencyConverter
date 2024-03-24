@@ -1,6 +1,10 @@
 import SwiftUI
 
-struct ConversionsContentView: View {
+protocol ConversionHistoryViewProtocol {
+    
+}
+
+struct ConversionsContentView: View, ConversionHistoryViewProtocol {
     @State private var sourceCurrencyIndex = 0
     @State private var targetCurrencyIndex = 0
     @State private var amount = ""
@@ -8,12 +12,12 @@ struct ConversionsContentView: View {
     @State private var conversionRate = ""
     @State private var isFetchingRates = false
     @State private var timeRemaining = Constants.refreshRatesTimerValue
-    @State private var errorMessage: ErrorAlert?
+    @State private var error: CustomError?
     
-    private let viewModel: ConversionsViewModel
+    private let viewModel: ConversionsViewModelProtocol
     private let router: ConversionViewRouter
     
-    init(viewModel: ConversionsViewModel, 
+    init(viewModel: ConversionsViewModelProtocol,
          router: ConversionViewRouter) {
         self.viewModel = viewModel
         self.router = router
@@ -64,7 +68,7 @@ struct ConversionsContentView: View {
                         } else {
                             Text("Convert")
                                 .padding()
-                                .background(Color.blue)
+                                .background(amount.isEmpty ? Color.gray : Color.blue)
                                 .foregroundColor(.white)
                                 .cornerRadius(10)
                         }
@@ -93,7 +97,7 @@ struct ConversionsContentView: View {
                                 timeRemaining -= 1
                             } else {
                                 timeRemaining = Constants.refreshRatesTimerValue
-                                viewModel.getRates()
+                                _getRates()
                             }
                         }
                 }
@@ -101,16 +105,16 @@ struct ConversionsContentView: View {
             }
             .navigationTitle("Currency Converter")
             .onAppear {
-                viewModel.getRates()
-            }
-            .alert(item: $errorMessage) { error in
-                Alert(title: Text("Error"), message: Text(error.message), dismissButton: .default(Text("OK")))
+                _getRates()
             }
         }
+        .errorAlert($error)
     }
     
-    private func _onConversionHistoryTapped() {
-        
+    private func _getRates() {
+        viewModel.getRates(handler: { _ in
+            self.error = CustomError.regular
+        })
     }
     
     private func _onConvertTapped() {
@@ -125,13 +129,8 @@ struct ConversionsContentView: View {
     }
 }
 
-extension UIApplication {
-    func endEditing() {
-        sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+extension View {
+    func errorAlert(_ error: Binding<CustomError?>) -> some View {
+        self.modifier(ErrorAlert(error: error))
     }
-}
-
-struct ErrorAlert: Identifiable {
-    var id = UUID()
-    var message: String
 }

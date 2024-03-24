@@ -32,7 +32,7 @@ class CurrencyRatesRepository: ObservableObject, CurrencyRatesRepositoryType {
         ratesData = .loaded(CurrencyRates(data: initialData))
     }
     
-    func getRates() async {
+    func getRates(handler: ((Error?) -> Void)?) async {
         return await withCheckedContinuation { continuation in
             DispatchQueue.main.async {
                 let task = self.networking.task().sink(
@@ -43,6 +43,7 @@ class CurrencyRatesRepository: ObservableObject, CurrencyRatesRepositoryType {
                         case let .failure(error):
                             DispatchQueue.main.async {
                                 self.ratesData.setError(error)
+                                handler?(error)
                                 continuation.resume()
                             }
                         }

@@ -7,6 +7,10 @@
 
 import Foundation
 
+protocol ConversionViewRouterProtocol {
+    func moveToHistory(list: [ConversionHistoryItem]) -> ConversionHistoryView
+}
+
 final class ConversionViewRouter {
     func moveToHistory(list: [ConversionHistoryItem]) -> ConversionHistoryView {
         

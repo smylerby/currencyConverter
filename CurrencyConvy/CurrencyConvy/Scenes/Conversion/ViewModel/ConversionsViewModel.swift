@@ -8,12 +8,15 @@
 import Foundation
 import SwiftUI
 
-struct ConversionOperationModel {
-    let conversionRate: String
-    let conversionAmount: String
+protocol ConversionsViewModelProtocol {
+    var currencies: [String] { get }
+    
+    func convert(sourceCurrencyIndex: Int, targetCurrencyIndex: Int, amount: String) -> ConversionOperationModel?
+    func getConvertionsHistory() -> [ConversionHistoryItem]
+    func getRates(handler: ((Error?) -> Void)?)
 }
 
-struct ConversionsViewModel {
+struct ConversionsViewModel: ConversionsViewModelProtocol {
     typealias UseCases = SaveConversionUseCase & FetchConversionRatesUseCase & GetConvertionsHistoryUseCase
     
     let useCases: UseCases
@@ -66,9 +69,9 @@ struct ConversionsViewModel {
         return useCases.conversionsHistory
     }
     
-    func getRates() {
+    func getRates(handler: ((Error?) -> Void)?) {
         Task {
-            await useCases.getRates()
+            await useCases.getRates(handler: handler)
         }
     }
 }
