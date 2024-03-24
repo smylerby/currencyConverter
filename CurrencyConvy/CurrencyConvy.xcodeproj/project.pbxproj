@@ -38,6 +38,7 @@
 		525501D82BB02719006BDABC /* ConversionOperationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 525501D72BB02719006BDABC /* ConversionOperationModel.swift */; };
 		525501DC2BB02C26006BDABC /* UIApplication + Keyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 525501DB2BB02C26006BDABC /* UIApplication + Keyboard.swift */; };
 		525501DE2BB02F9E006BDABC /* CustomError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 525501DD2BB02F9E006BDABC /* CustomError.swift */; };
+		525501E02BB03EF3006BDABC /* FavouriteCurrencyUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 525501DF2BB03EF3006BDABC /* FavouriteCurrencyUseCase.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -92,6 +93,7 @@
 		525501D72BB02719006BDABC /* ConversionOperationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversionOperationModel.swift; sourceTree = "<group>"; };
 		525501DB2BB02C26006BDABC /* UIApplication + Keyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication + Keyboard.swift"; sourceTree = "<group>"; };
 		525501DD2BB02F9E006BDABC /* CustomError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomError.swift; sourceTree = "<group>"; };
+		525501DF2BB03EF3006BDABC /* FavouriteCurrencyUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavouriteCurrencyUseCase.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -304,6 +306,7 @@
 				523EEE3D2BAF1C3500A92314 /* SaveConversionUseCase.swift */,
 				523EEE3F2BAF1D9E00A92314 /* FetchConversionRatesUseCase.swift */,
 				525501D52BB023C6006BDABC /* GetConvertionsHistory.swift */,
+				525501DF2BB03EF3006BDABC /* FavouriteCurrencyUseCase.swift */,
 			);
 			path = UseCases;
 			sourceTree = "<group>";
@@ -514,6 +517,7 @@
 				523EEE462BAF1F9E00A92314 /* Gateway.swift in Sources */,
 				523EEE3C2BAF1AA000A92314 /* ConversionHistoryRepositoryType.swift in Sources */,
 				523EEE3E2BAF1C3500A92314 /* SaveConversionUseCase.swift in Sources */,
+				525501E02BB03EF3006BDABC /* FavouriteCurrencyUseCase.swift in Sources */,
 				523EEE322BAEE96400A92314 /* AppConstants.swift in Sources */,
 				523EEDF42BAEDC4A00A92314 /* Item.swift in Sources */,
 				525501CC2BB0158D006BDABC /* ConversionsViewModel.swift in Sources */,

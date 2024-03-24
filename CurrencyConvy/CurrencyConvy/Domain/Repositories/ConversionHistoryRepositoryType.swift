@@ -8,8 +8,12 @@
 import Foundation
 
 protocol ConversionHistoryRepositoryType {
+    var storredSourceCurrencyIndex: Int { get }
+    var storredTargetCurrencyIndex: Int { get }
     var conversionHistory: [ConversionHistoryItem] { get }
+    
     func addToHistory(item: ConversionHistoryItem)
+    func updateStoredCurrency(for type: PickedCurrencyType, value: Int)
 }
 
 protocol ConversionHistoryRepositoryHolderType {

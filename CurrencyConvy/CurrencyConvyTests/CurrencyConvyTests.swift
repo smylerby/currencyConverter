@@ -1,61 +1,77 @@
-////
-////  CurrencyConvyTests.swift
-////  CurrencyConvyTests
-////
-////  Created by Rustam Shorov on 23.03.24.
-////
-//
-//import XCTest
-//@testable import CurrencyConvy // Замените на имя вашего приложения
-//
-//class ConversionsContentViewTests: XCTestCase {
-//    var viewModelMock: ConversionsViewModelProtocol!
-//    var routerMock: ConversionViewRouterProtocol!
-//    var contentView: ConversionsContentView!
-//    
-//    override func setUp() {
-//        super.setUp()
-//        
-//        viewModelMock = ConversionsViewModelMock()
-//        routerMock = ConversionViewRouterMock()
-//        contentView = ConversionsContentView(viewModel: viewModelMock, router: routerMock)
-//    }
-//    
-//    override func tearDown() {
-//        viewModelMock = nil
-//        routerMock = nil
-//        contentView = nil
-//        
-//        super.tearDown()
-//    }
-//    
-//    func testInitialState() {
-//        // Проверяем начальное состояние
-//        
-//        // Пример: Проверяем, что выбранные индексы валют равны 0
-//        XCTAssertEqual(contentView.sourceCurrencyIndex, 0)
-//        XCTAssertEqual(contentView.targetCurrencyIndex, 0)
-//    }
-//    
-//    func testConvertButtonDisabledWhenAmountIsEmpty() {
-//        // Проверяем, что кнопка "Convert" отключена, если поле ввода пустое
-//        
-//        // Пример: Устанавливаем пустое значение в поле ввода
-//        contentView.amount = ""
-//        
-//        // Пример: Проверяем, что кнопка "Convert" отключена
-//        XCTAssertTrue(contentView.isConvertButtonDisabled)
-//    }
-//    
-//    func testConvertButtonEnabledWhenAmountIsNotEmpty() {
-//        // Проверяем, что кнопка "Convert" включена, если поле ввода не пустое
-//        
-//        // Пример: Устанавливаем значение в поле ввода
-//        contentView.amount = "10"
-//        
-//        // Пример: Проверяем, что кнопка "Convert" включена
-//        XCTAssertFalse(contentView.isConvertButtonDisabled)
-//    }
-//    
-//    // Добавьте другие тесты по мере необходимости
-//}
+import XCTest
+import SwiftUI
+@testable import CurrencyConvy
+
+class ConversionsContentViewTests: XCTestCase {
+
+    var viewModelMock: ConversionsViewModelMock!
+    var routerMock: ConversionViewRouterMock!
+    var contentView: ConversionsContentView!
+
+    override func setUp() {
+        super.setUp()
+        viewModelMock = ConversionsViewModelMock()
+        routerMock = ConversionViewRouterMock()
+        contentView = ConversionsContentView(viewModel: viewModelMock, router: routerMock)
+    }
+
+    func testPickerSelectionUpdatesStoredCurrency() {
+        let sourceCurrencyIndex = 1
+        contentView._makePicker(type: .source, title: "Test", selection: .constant(sourceCurrencyIndex))
+        XCTAssertEqual(viewModelMock.storedSourceCurrencyIndex, sourceCurrencyIndex)
+    }
+
+    func testRatesUpdateOnViewAppear() {
+        contentView.onAppear()
+        XCTAssertTrue(viewModelMock.getRatesCalled)
+    }
+
+    func testConversionOnButtonTap() {
+        contentView._onConvertTapped()
+        XCTAssertTrue(viewModelMock.convertCalled)
+    }
+}
+
+class ConversionsViewModelMock: ConversionsViewModelProtocol {
+    
+    var storredSourceCurrencyIndex: Int = 0
+    var storredTargetCurrencyIndex: Int = 0
+    var currencies: [String] = []
+    
+    var storedSourceCurrencyIndex: Int = 0
+    var storedTargetCurrencyIndex: Int = 0
+    var getRatesCalled = false
+    var convertCalled = false
+
+    func getRates(handler: @escaping (CustomError?) -> Void) {
+        getRatesCalled = true
+    }
+
+    func convert(sourceCurrencyIndex: Int, targetCurrencyIndex: Int, amount: String) -> CurrencyConvy.ConversionOperationModel? {
+        return ConversionOperationModel(conversionRate: "10", conversionAmount: "10")
+    }
+    
+    func updateStoredCurrency(for type: CurrencyConvy.PickedCurrencyType, value: Int) {}
+    
+    func getConvertionsHistory() -> [CurrencyConvy.ConversionHistoryItem] {
+        return [.init(sourceCurrency: "RUB",
+                      targetCurrency: "USD",
+                      amount: 1,
+                      result: 10.0,
+                      date: Date())]
+    }
+    
+    func getRates(handler: ((Error?) -> Void)?) {}
+}
+
+class ConversionViewRouterMock: ConversionViewRouterProtocol {
+    func moveToHistory(list: [ConversionHistoryItem]) -> ConversionHistoryView {
+        return ConversionHistoryView(viewModel: ConversionsHistoryViewModel(list: [
+            .init(sourceCurrency: "RUB",
+                          targetCurrency: "USD",
+                          amount: 1,
+                          result: 10.0,
+                          date: Date())
+        ]))
+    }
+}
