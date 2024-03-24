@@ -54,13 +54,13 @@ struct ConversionsContentView: View {
         .errorAlert($error)
     }
     
-    private func _getRates() {
+    func _getRates() {
         viewModel.getRates(handler: { _ in
             self.error = CustomError.regular
         })
     }
     
-    private func _onConvertTapped() {
+    func _onConvertTapped() {
         guard let result = viewModel.convert(
             sourceCurrencyIndex: sourceCurrencyIndex,
             targetCurrencyIndex: targetCurrencyIndex,
@@ -79,7 +79,7 @@ extension View {
 }
 
 // MARK: - Preparing Views
-private extension ConversionsContentView {
+extension ConversionsContentView {
     
     func _makePicker(type: PickedCurrencyType, 
                      title: String,
