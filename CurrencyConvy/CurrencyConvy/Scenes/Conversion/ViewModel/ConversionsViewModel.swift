@@ -9,15 +9,18 @@ import Foundation
 import SwiftUI
 
 protocol ConversionsViewModelProtocol {
+    var storredSourceCurrencyIndex: Int { get }
+    var storredTargetCurrencyIndex: Int { get }
     var currencies: [String] { get }
     
+    func updateStoredCurrency(for type: PickedCurrencyType, value: Int)
     func convert(sourceCurrencyIndex: Int, targetCurrencyIndex: Int, amount: String) -> ConversionOperationModel?
     func getConvertionsHistory() -> [ConversionHistoryItem]
     func getRates(handler: ((Error?) -> Void)?)
 }
 
 struct ConversionsViewModel: ConversionsViewModelProtocol {
-    typealias UseCases = SaveConversionUseCase & FetchConversionRatesUseCase & GetConvertionsHistoryUseCase
+    typealias UseCases = SaveConversionUseCase & FetchConversionRatesUseCase & GetConvertionsHistoryUseCase & FavouriteCurrencyUseCase
     
     let useCases: UseCases
     let currencyManager: CurrencyRatesRepository
@@ -30,6 +33,18 @@ struct ConversionsViewModel: ConversionsViewModelProtocol {
          currencyManager: CurrencyRatesRepository) {
         self.useCases = useCases
         self.currencyManager = currencyManager
+    }
+    
+    var storredSourceCurrencyIndex: Int {
+        useCases.storredSourceCurrencyIndex
+    }
+    
+    var storredTargetCurrencyIndex: Int {
+        useCases.storredTargetCurrencyIndex
+    }
+    
+    func updateStoredCurrency(for type: PickedCurrencyType, value: Int) {
+        useCases.updateStoredCurrency(for: type, value: value)
     }
     
     func convert(sourceCurrencyIndex: Int, 

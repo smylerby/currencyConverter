@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct ConversionsContentView: View {
-    @State var sourceCurrencyIndex = 0
-    @State var targetCurrencyIndex = 0
+    @State var sourceCurrencyIndex: Int
+    @State var targetCurrencyIndex: Int
     @State var amount = ""
     @State var conversionResult = ""
     @State var conversionRate = ""
@@ -16,6 +16,8 @@ struct ConversionsContentView: View {
          router: ConversionViewRouterProtocol) {
         self.viewModel = viewModel
         self.router = router
+        _sourceCurrencyIndex = State(initialValue: viewModel.storredSourceCurrencyIndex)
+        _targetCurrencyIndex = State(initialValue: viewModel.storredTargetCurrencyIndex)
     }
     
     var body: some View {
@@ -23,9 +25,9 @@ struct ConversionsContentView: View {
             ScrollView {
                 VStack {
                     
-                    _makePicker(title: "Source Currency", selection: $sourceCurrencyIndex)
+                    _makePicker(type: .source, title: "Source Currency", selection: $sourceCurrencyIndex)
                     
-                    _makePicker(title: "Target Currency", selection: $targetCurrencyIndex)
+                    _makePicker(type: .target, title: "Target Currency", selection: $targetCurrencyIndex)
                     
                     _makeTextfield(text: $amount)
                     
@@ -79,7 +81,9 @@ extension View {
 // MARK: - Preparing Views
 private extension ConversionsContentView {
     
-    func _makePicker(title: String, selection: Binding<Int>) -> some View {
+    func _makePicker(type: PickedCurrencyType, 
+                     title: String,
+                     selection: Binding<Int>) -> some View {
         Picker(selection: selection, label: Text(title)) {
             ForEach(0 ..< viewModel.currencies.count) {
                 Text(viewModel.currencies[$0])
@@ -87,6 +91,9 @@ private extension ConversionsContentView {
         }
         .pickerStyle(SegmentedPickerStyle())
         .padding()
+        .onChange(of: selection.wrappedValue, { _, newValue in
+            viewModel.updateStoredCurrency(for: type, value: newValue)
+        })
     }
     
     func _makeLabel(title: String) -> some View {

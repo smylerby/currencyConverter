@@ -30,8 +30,6 @@ struct CurrencyConvyApp: App {
         WindowGroup {
             ConversionViewComposition.configure(conversionHistory: conversionHistory,
                                                 currencyRates: currencyRates)
-//                .environmentObject(conversionHistory)
-//                .environmentObject(currencyRates)
         }
         .modelContainer(sharedModelContainer)
     }

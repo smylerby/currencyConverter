@@ -7,9 +7,21 @@
 
 import SwiftUI
 
+enum PickedCurrencyType {
+    case source
+    case target
+}
+
 class ConversionHistoryRepository: ObservableObject, ConversionHistoryRepositoryType {
+
+    
+    @AppStorage(Keys.sourceCurrencyIndex) var storredSourceCurrencyIndex = 0
+    @AppStorage(Keys.targetCurrencyIndex) var storredTargetCurrencyIndex = 0
+    
     enum Keys {
         static let conversionHistoryKey = "conversionHistory"
+        static let sourceCurrencyIndex = "sourceCurrencyIndex"
+        static let targetCurrencyIndex = "targetCurrencyIndex"
     }
     
     @Published var conversions: [ConversionHistoryItem] = []
@@ -17,7 +29,7 @@ class ConversionHistoryRepository: ObservableObject, ConversionHistoryRepository
     init() {
         _load()
     }
-    
+
     var conversionHistory: [ConversionHistoryItem] {
         return conversions
     }
@@ -25,6 +37,15 @@ class ConversionHistoryRepository: ObservableObject, ConversionHistoryRepository
     func addToHistory(item: ConversionHistoryItem) {
         conversions.append(item)
         _save()
+    }
+    
+    func updateStoredCurrency(for type: PickedCurrencyType, value: Int) {
+        switch type {
+        case .source:
+            storredSourceCurrencyIndex = value
+        case .target:
+            storredTargetCurrencyIndex = value
+        }
     }
     
     // MARK: - Private -

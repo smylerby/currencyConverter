@@ -39,3 +39,4 @@ private final class ConversionViewCompositionContext: CurrencyRatesRepositoryHol
 extension ConversionViewCompositionContext: FetchConversionRatesUseCase {}
 extension ConversionViewCompositionContext: SaveConversionUseCase {}
 extension ConversionViewCompositionContext: GetConvertionsHistoryUseCase {}
+extension ConversionViewCompositionContext: FavouriteCurrencyUseCase {}
