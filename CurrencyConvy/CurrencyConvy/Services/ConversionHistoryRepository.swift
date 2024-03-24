@@ -8,7 +8,6 @@
 import SwiftUI
 
 class ConversionHistoryRepository: ObservableObject, ConversionHistoryRepositoryType {
-
     enum Keys {
         static let conversionHistoryKey = "conversionHistory"
     }
@@ -17,6 +16,10 @@ class ConversionHistoryRepository: ObservableObject, ConversionHistoryRepository
     
     init() {
         _load()
+    }
+    
+    var conversionHistory: [ConversionHistoryItem] {
+        return conversions
     }
     
     func addToHistory(item: ConversionHistoryItem) {

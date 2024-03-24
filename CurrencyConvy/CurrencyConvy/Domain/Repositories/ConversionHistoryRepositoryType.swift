@@ -8,6 +8,7 @@
 import Foundation
 
 protocol ConversionHistoryRepositoryType {
+    var conversionHistory: [ConversionHistoryItem] { get }
     func addToHistory(item: ConversionHistoryItem)
 }
 

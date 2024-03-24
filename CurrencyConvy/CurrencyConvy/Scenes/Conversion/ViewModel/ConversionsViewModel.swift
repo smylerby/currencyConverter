@@ -14,21 +14,18 @@ struct ConversionOperationModel {
 }
 
 struct ConversionsViewModel {
-    typealias UseCases = SaveConversionUseCase & FetchConversionRatesUseCase
+    typealias UseCases = SaveConversionUseCase & FetchConversionRatesUseCase & GetConvertionsHistoryUseCase
     
+    let useCases: UseCases
     let currencyManager: CurrencyRatesRepository
-    let saveConversionUseCase: SaveConversionUseCase
-    let fetchRatesUseCase: FetchConversionRatesUseCase
     
     var currencies: [String] {
         return ["RUB", "USD", "EUR", "GBP", "CHF", "CNY"]
     }
     
-    init(saveConversionUseCase: SaveConversionUseCase,
-         fetchRatesUseCase: FetchConversionRatesUseCase,
+    init(useCases: UseCases,
          currencyManager: CurrencyRatesRepository) {
-        self.saveConversionUseCase = saveConversionUseCase
-        self.fetchRatesUseCase = fetchRatesUseCase
+        self.useCases = useCases
         self.currencyManager = currencyManager
     }
     
@@ -56,7 +53,7 @@ struct ConversionsViewModel {
                                                    result: convertedAmount,
                                                    date: Date())
             
-            saveConversionUseCase.addToHistory(item: itemToSave)
+            useCases.addToHistory(item: itemToSave)
             
             return ConversionOperationModel(conversionRate: String(format: "%.4f", conversionRate),
                                             conversionAmount: String(format: "%.2f", convertedAmount))
@@ -65,9 +62,13 @@ struct ConversionsViewModel {
         return nil
     }
     
+    func getConvertionsHistory() -> [ConversionHistoryItem] {
+        return useCases.conversionsHistory
+    }
+    
     func getRates() {
         Task {
-            await fetchRatesUseCase.getRates()
+            await useCases.getRates()
         }
     }
 }

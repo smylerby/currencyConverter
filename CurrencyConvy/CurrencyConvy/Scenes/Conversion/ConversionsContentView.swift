@@ -11,9 +11,12 @@ struct ConversionsContentView: View {
     @State private var errorMessage: ErrorAlert?
     
     private let viewModel: ConversionsViewModel
+    private let router: ConversionViewRouter
     
-    init(viewModel: ConversionsViewModel) {
+    init(viewModel: ConversionsViewModel, 
+         router: ConversionViewRouter) {
         self.viewModel = viewModel
+        self.router = router
     }
     
     var body: some View {
@@ -51,7 +54,7 @@ struct ConversionsContentView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                     
                     Button(action: {
-                        convert()
+                        _onConvertTapped()
                         UIApplication.shared.endEditing()
                     }) {
                         if isFetchingRates {
@@ -69,7 +72,7 @@ struct ConversionsContentView: View {
                     .padding()
                     .disabled(amount.isEmpty || isFetchingRates)
                     
-                    NavigationLink(destination: ConversionHistoryView()) {
+                    NavigationLink(destination: router.moveToHistory(list: viewModel.getConvertionsHistory())) {
                         Text("Conversion History")
                             .padding()
                             .background(Color.blue)
@@ -81,7 +84,7 @@ struct ConversionsContentView: View {
                     
                     Spacer()
                     
-                    Text("Next update in: \(timeRemaining) seconds")
+                    Text("Next rates update in: \(timeRemaining) seconds")
                         .foregroundColor(.gray)
                         .font(.footnote)
                         .padding(.bottom)
@@ -106,7 +109,11 @@ struct ConversionsContentView: View {
         }
     }
     
-    func convert() {
+    private func _onConversionHistoryTapped() {
+        
+    }
+    
+    private func _onConvertTapped() {
         guard let result = viewModel.convert(
             sourceCurrencyIndex: sourceCurrencyIndex,
             targetCurrencyIndex: targetCurrencyIndex,

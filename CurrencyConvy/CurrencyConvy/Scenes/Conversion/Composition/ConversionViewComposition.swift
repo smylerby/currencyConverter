@@ -11,15 +11,17 @@ enum ConversionViewComposition {
     static func configure(conversionHistory: ConversionHistoryRepository,
                           currencyRates: CurrencyRatesRepository) -> ConversionsContentView {
         
-        let context = ConversionViewCompositionContext(currencyRatesRepository: currencyRates,
-                                                       conversionHistoryRepository: conversionHistory)
+        let context = ConversionViewCompositionContext(
+            currencyRatesRepository: currencyRates,
+            conversionHistoryRepository: conversionHistory
+        )
         
-        let vm = ConversionsViewModel(saveConversionUseCase: context,
-                                      fetchRatesUseCase: context,
-                                      currencyManager: currencyRates)
+        let viewModel = ConversionsViewModel(useCases: context,
+                                             currencyManager: currencyRates)
 
+        let router = ConversionViewRouter()
         
-        return ConversionsContentView(viewModel: vm)
+        return ConversionsContentView(viewModel: viewModel, router: router)
     }
 }
 
@@ -36,3 +38,4 @@ private final class ConversionViewCompositionContext: CurrencyRatesRepositoryHol
 
 extension ConversionViewCompositionContext: FetchConversionRatesUseCase {}
 extension ConversionViewCompositionContext: SaveConversionUseCase {}
+extension ConversionViewCompositionContext: GetConvertionsHistoryUseCase {}
