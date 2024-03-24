@@ -9,11 +9,11 @@ import Foundation
 
 enum CurrencyRatesRoute {
     
-    case latest
+    case update
     
     var url: URL {
         switch self {
-            case .latest:
+            case .update:
             let path = Constants.apiPath
             return URL(string: path+Constants.apiKey)!
         }

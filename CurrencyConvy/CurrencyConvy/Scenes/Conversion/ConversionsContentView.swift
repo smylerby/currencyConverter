@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct ContentView: View {
+struct ConversionsContentView: View {
     @State private var sourceCurrencyIndex = 0
     @State private var targetCurrencyIndex = 0
     @State private var amount = ""
@@ -10,26 +10,27 @@ struct ContentView: View {
     @State private var timeRemaining = Constants.refreshRatesTimerValue
     @State private var errorMessage: ErrorAlert?
     
-    let currencies = ["RUB", "USD", "EUR", "GBP", "CHF", "CNY"]
+    private let viewModel: ConversionsViewModel
     
-    @EnvironmentObject var conversionHistory: ConversionHistoryRepository
-    @EnvironmentObject var currencyRates: CurrencyRatesManager
+    init(viewModel: ConversionsViewModel) {
+        self.viewModel = viewModel
+    }
     
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack {
                     Picker(selection: $sourceCurrencyIndex, label: Text("Source Currency")) {
-                        ForEach(0 ..< currencies.count) {
-                            Text(self.currencies[$0])
+                        ForEach(0 ..< viewModel.currencies.count) {
+                            Text(viewModel.currencies[$0])
                         }
                     }
                     .pickerStyle(SegmentedPickerStyle())
                     .padding()
                     
                     Picker(selection: $targetCurrencyIndex, label: Text("Target Currency")) {
-                        ForEach(0 ..< currencies.count) {
-                            Text(self.currencies[$0])
+                        ForEach(0 ..< viewModel.currencies.count) {
+                            Text(viewModel.currencies[$0])
                         }
                     }
                     .pickerStyle(SegmentedPickerStyle())
@@ -51,7 +52,7 @@ struct ContentView: View {
                     
                     Button(action: {
                         convert()
-                        UIApplication.shared.endEditing() // Скрыть клавиатуру
+                        UIApplication.shared.endEditing()
                     }) {
                         if isFetchingRates {
                             ProgressView()
@@ -89,15 +90,15 @@ struct ContentView: View {
                                 timeRemaining -= 1
                             } else {
                                 timeRemaining = Constants.refreshRatesTimerValue
-                                getRates()
+                                viewModel.getRates()
                             }
                         }
                 }
-                .padding(.bottom, 20) // Добавляем дополнительный отступ снизу для прокрутки
+                .padding(.bottom, 20)
             }
             .navigationTitle("Currency Converter")
             .onAppear {
-                getRates()
+                viewModel.getRates()
             }
             .alert(item: $errorMessage) { error in
                 Alert(title: Text("Error"), message: Text(error.message), dismissButton: .default(Text("OK")))
@@ -106,38 +107,14 @@ struct ContentView: View {
     }
     
     func convert() {
-        let sourceCurrency = currencies[sourceCurrencyIndex]
-        let targetCurrency = currencies[targetCurrencyIndex]
-        
-        
-        if case let .loaded(value) = currencyRates.ratesData {
-            guard let sourceRate = value.data[sourceCurrency],
-                  let targetRate = value.data[targetCurrency],
-                  let amountToConvert = Double(amount) else {
-                print("Failed to get rates or convert amount")
-                return
-            }
-            
-            let conversionRate = targetRate / sourceRate
-            self.conversionRate = String(format: "%.4f", conversionRate)
-            
-            let convertedAmount = amountToConvert * conversionRate
-            self.conversionResult = String(format: "%.2f", convertedAmount)
-            
-            let itemToSave = ConversionHistoryItem(sourceCurrency: sourceCurrency,
-                                                   targetCurrency: targetCurrency,
-                                                   amount: amountToConvert,
-                                                   result: convertedAmount,
-                                                   date: Date())
-            
-            conversionHistory.add(itemToSave)
-        }
-    }
-    
-    private func getRates() {
-        Task {
-            await currencyRates.fetchAllCurrencyRates()
-        }
+        guard let result = viewModel.convert(
+            sourceCurrencyIndex: sourceCurrencyIndex,
+            targetCurrencyIndex: targetCurrencyIndex,
+            amount: amount
+        ) else { return }
+                
+        self.conversionRate = result.conversionRate
+        self.conversionResult = result.conversionAmount
     }
 }
 

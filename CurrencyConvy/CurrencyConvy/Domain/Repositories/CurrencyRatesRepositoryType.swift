@@ -8,7 +8,7 @@
 import Foundation
 
 protocol CurrencyRatesRepositoryType {
-    func getRates() -> [String: Double]
+    func getRates() async
 }
 
 protocol CurrencyRatesRepositoryHolderType {

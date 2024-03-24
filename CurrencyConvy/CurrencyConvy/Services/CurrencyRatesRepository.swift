@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-class CurrencyRatesManager: ObservableObject {
+class CurrencyRatesRepository: ObservableObject, CurrencyRatesRepositoryType {
     
     enum Keys {
         static let currencyRatesKey = "currencyRates"
@@ -17,7 +17,7 @@ class CurrencyRatesManager: ObservableObject {
         didSet {
             switch ratesData {
                 case .loaded(let rates):
-                    self.saveToStorage(rates: rates)
+                    self._saveToStorage(rates: rates)
                 default: return
             }
         }
@@ -28,12 +28,11 @@ class CurrencyRatesManager: ObservableObject {
     required init(_ network: Networking) {
         self.networking = network
         
-        let initialData = loadCurrencyRates()
+        let initialData = _loadCurrencyRates()
         ratesData = .loaded(CurrencyRates(data: initialData))
-        
     }
     
-    func fetchAllCurrencyRates() async {
+    func getRates() async {
         return await withCheckedContinuation { continuation in
             DispatchQueue.main.async {
                 let task = self.networking.task().sink(
@@ -59,16 +58,17 @@ class CurrencyRatesManager: ObservableObject {
         }
     }
     
-    func saveToStorage(rates: CurrencyRates) {
+    // MARK: - Private -
+    
+    private func _saveToStorage(rates: CurrencyRates) {
         if let encodedData = try? JSONEncoder().encode(rates.data) {
             UserDefaults.standard.set(encodedData, forKey: Keys.currencyRatesKey)
         }
     }
 
-    func loadCurrencyRates() -> [String: Double] {
+    private func _loadCurrencyRates() -> [String: Double] {
         if let data = UserDefaults.standard.data(forKey: Keys.currencyRatesKey),
            let savedCurrencyRates = try? JSONDecoder().decode([String: Double].self, from: data) {
-//            self.ratesData.setValue(CurrencyRates(data: savedCurrencyRates))
             return savedCurrencyRates
         }
         

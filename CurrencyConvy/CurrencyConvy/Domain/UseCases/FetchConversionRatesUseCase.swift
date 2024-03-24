@@ -8,11 +8,11 @@
 import Foundation
 
 protocol FetchConversionRatesUseCase {
-    func getRates() -> [String: Double]
+    func getRates() async
 }
 
 extension FetchConversionRatesUseCase where Self: CurrencyRatesRepositoryHolderType {
-    func getRates() -> [String: Double] {
-        return currencyRatesRepository.getRates()
+    func getRates() async {
+        return await currencyRatesRepository.getRates()
     }
 }
