@@ -7,7 +7,13 @@
 
 import Foundation
 
-struct ConversionsHistoryViewModel {
+protocol ConversionsHistoryViewModelProtocol {
+    var dateFormatter: DateFormatter { get }
+    
+    func getFilteredList(filterText: String) -> [ConversionHistoryItem]
+}
+
+struct ConversionsHistoryViewModel: ConversionsHistoryViewModelProtocol {
     
     let list: [ConversionHistoryItem]
     

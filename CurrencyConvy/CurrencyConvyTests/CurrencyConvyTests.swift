@@ -1,36 +1,61 @@
+////
+////  CurrencyConvyTests.swift
+////  CurrencyConvyTests
+////
+////  Created by Rustam Shorov on 23.03.24.
+////
 //
-//  CurrencyConvyTests.swift
-//  CurrencyConvyTests
+//import XCTest
+//@testable import CurrencyConvy // Замените на имя вашего приложения
 //
-//  Created by Rustam Shorov on 23.03.24.
-//
-
-import XCTest
-@testable import CurrencyConvy
-
-final class CurrencyConvyTests: XCTestCase {
-
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
-    }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
-
-}
+//class ConversionsContentViewTests: XCTestCase {
+//    var viewModelMock: ConversionsViewModelProtocol!
+//    var routerMock: ConversionViewRouterProtocol!
+//    var contentView: ConversionsContentView!
+//    
+//    override func setUp() {
+//        super.setUp()
+//        
+//        viewModelMock = ConversionsViewModelMock()
+//        routerMock = ConversionViewRouterMock()
+//        contentView = ConversionsContentView(viewModel: viewModelMock, router: routerMock)
+//    }
+//    
+//    override func tearDown() {
+//        viewModelMock = nil
+//        routerMock = nil
+//        contentView = nil
+//        
+//        super.tearDown()
+//    }
+//    
+//    func testInitialState() {
+//        // Проверяем начальное состояние
+//        
+//        // Пример: Проверяем, что выбранные индексы валют равны 0
+//        XCTAssertEqual(contentView.sourceCurrencyIndex, 0)
+//        XCTAssertEqual(contentView.targetCurrencyIndex, 0)
+//    }
+//    
+//    func testConvertButtonDisabledWhenAmountIsEmpty() {
+//        // Проверяем, что кнопка "Convert" отключена, если поле ввода пустое
+//        
+//        // Пример: Устанавливаем пустое значение в поле ввода
+//        contentView.amount = ""
+//        
+//        // Пример: Проверяем, что кнопка "Convert" отключена
+//        XCTAssertTrue(contentView.isConvertButtonDisabled)
+//    }
+//    
+//    func testConvertButtonEnabledWhenAmountIsNotEmpty() {
+//        // Проверяем, что кнопка "Convert" включена, если поле ввода не пустое
+//        
+//        // Пример: Устанавливаем значение в поле ввода
+//        contentView.amount = "10"
+//        
+//        // Пример: Проверяем, что кнопка "Convert" включена
+//        XCTAssertFalse(contentView.isConvertButtonDisabled)
+//    }
+//    
+//    // Добавьте другие тесты по мере необходимости
+//}

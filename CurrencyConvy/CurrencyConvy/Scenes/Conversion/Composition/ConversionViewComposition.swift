@@ -19,7 +19,7 @@ enum ConversionViewComposition {
         let viewModel = ConversionsViewModel(useCases: context,
                                              currencyManager: currencyRates)
 
-        let router = ConversionViewRouter()
+        let router: ConversionViewRouterProtocol = ConversionViewRouter()
         
         return ConversionsContentView(viewModel: viewModel, router: router)
     }

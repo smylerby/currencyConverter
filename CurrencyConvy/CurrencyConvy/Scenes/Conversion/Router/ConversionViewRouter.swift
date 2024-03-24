@@ -11,7 +11,7 @@ protocol ConversionViewRouterProtocol {
     func moveToHistory(list: [ConversionHistoryItem]) -> ConversionHistoryView
 }
 
-final class ConversionViewRouter {
+final class ConversionViewRouter: ConversionViewRouterProtocol {
     func moveToHistory(list: [ConversionHistoryItem]) -> ConversionHistoryView {
         
         let scene = ConversionsHistoryComposition.configure(list: list)

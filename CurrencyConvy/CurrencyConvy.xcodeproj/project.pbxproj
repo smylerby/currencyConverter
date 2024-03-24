@@ -181,10 +181,8 @@
 			isa = PBXGroup;
 			children = (
 				525501D02BB02127006BDABC /* Composition */,
-				523EEE332BAEE9EE00A92314 /* Model */,
 				523EEE242BAEE69000A92314 /* ViewModel */,
 				523EEE232BAEE68B00A92314 /* View */,
-				523EEE222BAEE67E00A92314 /* Services */,
 			);
 			path = ConversionHistory;
 			sourceTree = "<group>";
@@ -199,13 +197,6 @@
 				523EEE2A2BAEE75B00A92314 /* Model */,
 			);
 			path = Conversion;
-			sourceTree = "<group>";
-		};
-		523EEE222BAEE67E00A92314 /* Services */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Services;
 			sourceTree = "<group>";
 		};
 		523EEE232BAEE68B00A92314 /* View */ = {
@@ -248,13 +239,6 @@
 				523EEE2E2BAEE92500A92314 /* CurrencyRatesRepository.swift */,
 			);
 			path = Services;
-			sourceTree = "<group>";
-		};
-		523EEE332BAEE9EE00A92314 /* Model */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Model;
 			sourceTree = "<group>";
 		};
 		523EEE342BAF18DA00A92314 /* Domain */ = {

@@ -11,9 +11,9 @@ struct ConversionHistoryView: View {
     
     @State private var searchText = ""
     
-    private let viewModel: ConversionsHistoryViewModel
+    private let viewModel: ConversionsHistoryViewModelProtocol
     
-    init(viewModel: ConversionsHistoryViewModel) {
+    init(viewModel: ConversionsHistoryViewModelProtocol) {
         self.viewModel = viewModel
     }
     

@@ -1,24 +1,19 @@
 import SwiftUI
 
-protocol ConversionHistoryViewProtocol {
-    
-}
-
-struct ConversionsContentView: View, ConversionHistoryViewProtocol {
-    @State private var sourceCurrencyIndex = 0
-    @State private var targetCurrencyIndex = 0
-    @State private var amount = ""
-    @State private var conversionResult = ""
-    @State private var conversionRate = ""
-    @State private var isFetchingRates = false
-    @State private var timeRemaining = Constants.refreshRatesTimerValue
-    @State private var error: CustomError?
+struct ConversionsContentView: View {
+    @State var sourceCurrencyIndex = 0
+    @State var targetCurrencyIndex = 0
+    @State var amount = ""
+    @State var conversionResult = ""
+    @State var conversionRate = ""
+    @State var timeRemaining = Constants.refreshRatesTimerValue
+    @State var error: CustomError?
     
     private let viewModel: ConversionsViewModelProtocol
-    private let router: ConversionViewRouter
+    private let router: ConversionViewRouterProtocol
     
     init(viewModel: ConversionsViewModelProtocol,
-         router: ConversionViewRouter) {
+         router: ConversionViewRouterProtocol) {
         self.viewModel = viewModel
         self.router = router
     }
@@ -27,79 +22,25 @@ struct ConversionsContentView: View, ConversionHistoryViewProtocol {
         NavigationView {
             ScrollView {
                 VStack {
-                    Picker(selection: $sourceCurrencyIndex, label: Text("Source Currency")) {
-                        ForEach(0 ..< viewModel.currencies.count) {
-                            Text(viewModel.currencies[$0])
-                        }
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
-                    .padding()
                     
-                    Picker(selection: $targetCurrencyIndex, label: Text("Target Currency")) {
-                        ForEach(0 ..< viewModel.currencies.count) {
-                            Text(viewModel.currencies[$0])
-                        }
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
-                    .padding()
+                    _makePicker(title: "Source Currency", selection: $sourceCurrencyIndex)
                     
-                    TextField("Enter amount", text: $amount, onCommit: {
-                        UIApplication.shared.endEditing()
-                    })
-                    .keyboardType(.decimalPad)
-                    .padding()
+                    _makePicker(title: "Target Currency", selection: $targetCurrencyIndex)
                     
-                    Text("Conversion Result: \(conversionResult)")
-                        .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    _makeTextfield(text: $amount)
                     
-                    Text("Conversion Rate: \(conversionRate)")
-                        .padding()
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    _makeLabel(title: "Conversion Result: \(conversionResult)")
                     
-                    Button(action: {
-                        _onConvertTapped()
-                        UIApplication.shared.endEditing()
-                    }) {
-                        if isFetchingRates {
-                            ProgressView()
-                                .progressViewStyle(CircularProgressViewStyle())
-                                .foregroundColor(.white)
-                        } else {
-                            Text("Convert")
-                                .padding()
-                                .background(amount.isEmpty ? Color.gray : Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
-                        }
-                    }
-                    .padding()
-                    .disabled(amount.isEmpty || isFetchingRates)
+                    _makeLabel(title: "Conversion Rate: \(conversionRate)")
                     
-                    NavigationLink(destination: router.moveToHistory(list: viewModel.getConvertionsHistory())) {
-                        Text("Conversion History")
-                            .padding()
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                    }
-                    .padding()
+                    _makeConvertButton()
                     
+                    _makeNavigationButton(title: "Conversion History",
+                                          destination: router.moveToHistory(list: viewModel.getConvertionsHistory()))
                     
                     Spacer()
                     
-                    Text("Next rates update in: \(timeRemaining) seconds")
-                        .foregroundColor(.gray)
-                        .font(.footnote)
-                        .padding(.bottom)
-                        .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
-                            if timeRemaining > 0 {
-                                timeRemaining -= 1
-                            } else {
-                                timeRemaining = Constants.refreshRatesTimerValue
-                                _getRates()
-                            }
-                        }
+                    _makeTimerLabel()
                 }
                 .padding(.bottom, 20)
             }
@@ -132,5 +73,79 @@ struct ConversionsContentView: View, ConversionHistoryViewProtocol {
 extension View {
     func errorAlert(_ error: Binding<CustomError?>) -> some View {
         self.modifier(ErrorAlert(error: error))
+    }
+}
+
+// MARK: - Preparing Views
+private extension ConversionsContentView {
+    
+    func _makePicker(title: String, selection: Binding<Int>) -> some View {
+        Picker(selection: selection, label: Text(title)) {
+            ForEach(0 ..< viewModel.currencies.count) {
+                Text(viewModel.currencies[$0])
+            }
+        }
+        .pickerStyle(SegmentedPickerStyle())
+        .padding()
+    }
+    
+    func _makeLabel(title: String) -> some View {
+        let label = Text(title)
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
+        
+        return label
+    }
+    
+    func _makeConvertButton() -> some View {
+       let button = Button(action: {
+            _onConvertTapped()
+            UIApplication.shared.endEditing()
+        }) {
+            Text("Convert")
+                .padding()
+                .background(amount.isEmpty ? Color.gray : Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+        }
+        .padding()
+        .disabled(amount.isEmpty)
+        
+        return button
+    }
+    
+    func _makeTextfield(text: Binding<String>) -> some View {
+        TextField("Enter amount", text: text, onCommit: {
+            UIApplication.shared.endEditing()
+        })
+        .keyboardType(.decimalPad)
+        .padding()
+    }
+    
+    func _makeNavigationButton(title: String, destination: some View) -> some View {
+        
+        return NavigationLink(destination: destination) {
+            Text(title)
+                .padding()
+                .background(Color.blue)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+        }
+        .padding()
+    }
+    
+    func _makeTimerLabel() -> some View {
+       return Text("Next rates update in: \(timeRemaining) seconds")
+            .foregroundColor(.gray)
+            .font(.footnote)
+            .padding(.bottom)
+            .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect(), perform: { _ in
+                if timeRemaining > 0 {
+                    timeRemaining -= 1
+                } else {
+                    timeRemaining = Constants.refreshRatesTimerValue
+                    _getRates()
+                }
+            })
     }
 }
